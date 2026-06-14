@@ -7,7 +7,7 @@ app.use(cors());
 app.use(express.json());
 //Todo root apis here;
 app.get('/', (req, res) => {
-  res.send('Hello World!');
+  res.send('Hello Worlds!');
 });
 // Todo listen port;
 app.listen(port, () => {
