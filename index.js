@@ -30,16 +30,12 @@ async function run() {
     await client.connect();
     //? my db & my colls;
     const myDB = client.db("localChefBazaar");
-    const myColl = myDB.collection("cards");
-    //? post cards data;
-    app.post('/cards',async(req,res)=>{
-      const data = req.body;
-      const result = await myColl.insertOne(data);
-      res.send(result);
-    })
+    const myColl = myDB.collection("cardsData");
     //? get cards data;
-    app.get('/cards',async (req,res)=>{
-    
+    app.get('/cardsData',async (req,res)=>{
+      const cursor = myColl.find();
+      const result = await cursor.toArray();
+      res.send(result)
     })
 
 
