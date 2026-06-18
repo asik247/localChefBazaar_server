@@ -1,5 +1,7 @@
 const express = require('express');
 const cors = require('cors');
+// ! dotenv;
+require('dotenv').config()
 const { MongoClient, ServerApiVersion } = require('mongodb');
 const app = express();
 const port = process.env.PORT || 3000;
@@ -15,7 +17,7 @@ app.listen(port, () => {
   console.log(`This server run on port ${port}`);
 })
 //! mongodb uri here;
-const uri = "mongodb+srv://localChefBazaar:9RYS1svQ0pfxTHOi@cluster0.fdzc9ua.mongodb.net/?appName=Cluster0";
+const uri = `mongodb+srv://${process.env.DBNAME}:${process.env.BDPASS}@cluster0.fdzc9ua.mongodb.net/?appName=Cluster0`;
 //! client code here;
 const client = new MongoClient(uri, {
   serverApi: {
@@ -32,7 +34,7 @@ async function run() {
     const myDB = client.db("localChefBazaar");
     const myColl = myDB.collection("cardsData");
     //? get cards data;
-    app.get('/cardsData',async (req,res)=>{
+    app.get('/cardsData', async (req, res) => {
       const cursor = myColl.find();
       const result = await cursor.toArray();
       res.send(result)
