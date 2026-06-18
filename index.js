@@ -17,7 +17,7 @@ app.listen(port, () => {
   console.log(`This server run on port ${port}`);
 })
 //! mongodb uri here;
-const uri = `mongodb+srv://${process.env.DBNAME}:${process.env.BDPASS}@cluster0.fdzc9ua.mongodb.net/?appName=Cluster0`;
+const uri = `mongodb+srv://${process.env.DB_NAME}:${process.env.DB_PASS}@cluster0.fdzc9ua.mongodb.net/?appName=Cluster0`;
 //! client code here;
 const client = new MongoClient(uri, {
   serverApi: {
