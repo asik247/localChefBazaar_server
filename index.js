@@ -35,7 +35,7 @@ async function run() {
     const myColl = myDB.collection("cardsData");
     //? get cards data;
     app.get('/cardsData', async (req, res) => {
-      const cursor = myColl.find();
+      const cursor = myColl.find().sort({price:-1}).limit(6)
       const result = await cursor.toArray();
       res.send(result)
     })
