@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors');
 // ! dotenv;
 require('dotenv').config()
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const app = express();
 const port = process.env.PORT || 3000;
 //Todo middleware here;
@@ -32,11 +32,25 @@ async function run() {
     await client.connect();
     //? my db & my colls;
     const myDB = client.db("localChefBazaar");
-    const myColl = myDB.collection("cardsData");
-    //? get cards data;
+    const myCardsColl = myDB.collection("cardsData");
+    //? get cards data for limit first 6 data;
     app.get('/cardsData', async (req, res) => {
-      const cursor = myColl.find().sort({price:-1}).limit(6)
+      const cursor = myCardsColl.find().sort({price:-1}).limit(6)
       const result = await cursor.toArray();
+      res.send(result)
+    })
+    //? get cards all data;
+    app.get('/cardsData/meals', async (req, res) => {
+      const cursor = myCardsColl.find()
+      const result = await cursor.toArray();
+      res.send(result)
+    })
+    //? get cards data using id;
+    app.get('/cardsData/:id',async(req,res)=>{
+      const id = req.params.id;
+      console.log('card id',id);
+      const query = { _id:new ObjectId(id)};
+      const result = await myCardsColl.findOne(query);
       res.send(result)
     })
 
