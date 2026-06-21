@@ -33,6 +33,7 @@ async function run() {
     //? my db & my colls;
     const myDB = client.db("localChefBazaar");
     const myCardsColl = myDB.collection("cardsData");
+    const usersColl = myDB.collection("users");
     //? get cards data for limit first 6 data;
     app.get('/cardsData', async (req, res) => {
       const cursor = myCardsColl.find().sort({price:-1}).limit(6)
@@ -48,12 +49,18 @@ async function run() {
     //? get cards data using id;
     app.get('/cardsData/:id',async(req,res)=>{
       const id = req.params.id;
-      console.log('card id',id);
+      // console.log('card id',id);
       const query = { _id:new ObjectId(id)};
       const result = await myCardsColl.findOne(query);
       res.send(result)
     })
-
+    //? post user data in db;
+    app.post('/users',async(req,res)=>{
+      const usersData = req.body;
+      console.log('userInfo',usersData);
+      const result = await usersColl.insertOne(usersData);
+      res.send(result)
+    })
 
 
 
