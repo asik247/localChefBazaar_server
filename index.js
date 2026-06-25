@@ -34,31 +34,57 @@ async function run() {
     const myDB = client.db("localChefBazaar");
     const myCardsColl = myDB.collection("cardsData");
     const usersColl = myDB.collection("users");
+    const ordersColl = myDB.collection("orders");
+    const favoritesColl = myDB.collection("favorites");
     //? get cards data for limit first 6 data;
     app.get('/cardsData', async (req, res) => {
-      const cursor = myCardsColl.find().sort({price:-1}).limit(6)
+      const cursor = myCardsColl.find().sort({ price: -1 }).limit(6)
       const result = await cursor.toArray();
       res.send(result)
     })
     //? get cards all data;
     app.get('/cardsData/meals', async (req, res) => {
-      const cursor = myCardsColl.find()
+      const cursor = myCardsColl.find().sort({ price: -1 })
       const result = await cursor.toArray();
       res.send(result)
     })
     //? get cards data using id;
-    app.get('/cardsData/:id',async(req,res)=>{
+    app.get('/cardsData/:id', async (req, res) => {
       const id = req.params.id;
       // console.log('card id',id);
-      const query = { _id:new ObjectId(id)};
+      const query = { _id: new ObjectId(id) };
       const result = await myCardsColl.findOne(query);
       res.send(result)
     })
     //? post user data in db;
-    app.post('/users',async(req,res)=>{
+    app.post('/users', async (req, res) => {
       const usersData = req.body;
-      console.log('userInfo',usersData);
       const result = await usersColl.insertOne(usersData);
+      res.send(result)
+    })
+    //? post orders data in db;
+    app.post('/orders', async (req, res) => {
+      const orderInfo = req.body;
+      const result = await ordersColl.insertOne(orderInfo);
+      res.send(result)
+    })
+    //? post favorties data in db;
+    app.post('/favorites', async (req, res) => {
+      const favoritesInfo = req.body;
+      //Todo get userEmail,mealId in db;
+      const query = {
+        userEmail: favoritesInfo.userEmail,
+        mealId: favoritesInfo.mealId
+      };
+      const alreadyExist = await favoritesColl.findOne(query);
+      if (alreadyExist) {
+        return res.send({
+          message: 'already-exists'
+        });
+      }
+      
+      // ! inserted favoritedId indb;
+      const result = await favoritesColl.insertOne(favoritesInfo);
       res.send(result)
     })
 
