@@ -35,6 +35,7 @@ async function run() {
     const myCardsColl = myDB.collection("cardsData");
     const usersColl = myDB.collection("users");
     const ordersColl = myDB.collection("orders");
+    const reviewsColl = myDB.collection("reviews");
     const favoritesColl = myDB.collection("favorites");
     //? get cards data for limit first 6 data;
     app.get('/cardsData', async (req, res) => {
@@ -58,6 +59,9 @@ async function run() {
     })
     //? post user data in db;
     app.post('/users', async (req, res) => {
+      //? client site token;
+      // const authorization = req.headers.authorization.split(' ')[1]
+      // console.log(authorization);
       const usersData = req.body;
       const result = await usersColl.insertOne(usersData);
       res.send(result)
@@ -82,12 +86,25 @@ async function run() {
           message: 'already-exists'
         });
       }
-      
       // ! inserted favoritedId indb;
       const result = await favoritesColl.insertOne(favoritesInfo);
       res.send(result)
     })
-
+    //? post reviews data in db;
+    app.post('/reviews', async (req, res) => {
+      const reviewsData = req.body;
+      const result = await reviewsColl.insertOne(reviewsData);
+      res.send(result);
+    })
+    //? get this meal review get;
+    app.get('/reviews/:mealId', async (req, res) => {
+      const mealId = req.params.mealId;
+      const query = {
+        mealId: mealId
+      };
+      const result = await reviewsColl.find(query).toArray();
+      res.send(result);
+    });
 
 
 
