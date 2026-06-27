@@ -63,7 +63,22 @@ async function run() {
       // const authorization = req.headers.authorization.split(' ')[1]
       // console.log(authorization);
       const usersData = req.body;
+      //? already exist user no insert db;
+      const email = usersData.email;
+      //const query = {clientEmail}
+      const emailResult = await usersColl.findOne({ email });
+      console.log(emailResult);
+      if (emailResult) {
+        return res.send({ message: 'user alredy exist' })
+      }
+
       const result = await usersColl.insertOne(usersData);
+      res.send(result)
+    })
+    //Todo get specifique user;
+    app.get('/users/:userEmail', async (req, res) => {
+      const email = req.params.userEmail
+      const result = await usersColl.findOne({ email });
       res.send(result)
     })
     //? post orders data in db;
