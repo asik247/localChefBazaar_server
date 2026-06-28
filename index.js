@@ -37,6 +37,7 @@ async function run() {
     const ordersColl = myDB.collection("orders");
     const reviewsColl = myDB.collection("reviews");
     const favoritesColl = myDB.collection("favorites");
+    const roleRequestColl = myDB.collection("roleRequest");
     //? get cards data for limit first 6 data;
     app.get('/cardsData', async (req, res) => {
       const cursor = myCardsColl.find().sort({ price: -1 }).limit(6)
@@ -120,7 +121,22 @@ async function run() {
       const result = await reviewsColl.find(query).toArray();
       res.send(result);
     });
-
+    //Todo post request data in roleRequest coll;
+    app.post('/roleRequest',async(req,res)=>{
+      const requestInfo = req.body;
+      const email = requestInfo.userEmail;
+      const query = {
+        userEmail:email,
+        requestStatus:'pending'
+      }
+     
+      const existingRequest = await roleRequestColl.findOne(query);
+      if(existingRequest){
+        return res.send({message:'You already have a pending request.'})
+      }
+      const result = await roleRequestColl.insertOne(requestInfo)
+      res.send(result)
+    })
 
 
 
