@@ -124,6 +124,7 @@ async function run() {
     //Todo post request data in roleRequest coll;
     app.post('/roleRequest',async(req,res)=>{
       const requestInfo = req.body;
+      // console.log(req.headers.authorization);
       const email = requestInfo.userEmail;
       const query = {
         userEmail:email,
