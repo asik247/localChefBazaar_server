@@ -178,8 +178,8 @@ async function run() {
     //! Accepted users requst and update userColl rol + unique chef id;
     app.patch('/users/requestUpdate/:id', async (req, res) => {
       const id = req.params.id;
-      const query = {_id:new ObjectId(id)}
-      const { requestType,email } = req.body;
+      const query = { _id: new ObjectId(id) }
+      const { requestType, email } = req.body;
       //? validation for chef or admin;
       let updateData = {};
       if (requestType === "chef") {
@@ -194,15 +194,15 @@ async function run() {
           role: "admin"
         };
       }
-      const resultUpdate = await usersColl.updateOne({email:email},{$set:updateData});
+      const resultUpdate = await usersColl.updateOne({ email: email }, { $set: updateData });
       // ? role requst coll update;
       const roleRequestUpdate = {
-        $set:{
-          requestStatus:'approved'
+        $set: {
+          requestStatus: 'approved'
         }
       }
-      const requestResult = await roleRequestColl.updateOne(query,roleRequestUpdate)
-      res.send({resultUpdate,requestResult})
+      const requestResult = await roleRequestColl.updateOne(query, roleRequestUpdate)
+      res.send({ resultUpdate, requestResult })
     })
 
     //? post orders data in db;
@@ -231,26 +231,55 @@ async function run() {
       res.send(result)
     })
     //! get orders data chef order items user;
-    app.get('/orders/chefOrder/:id', async (req, res) => {
+    app.get('/orders/chefOrder/:id', verifyFirebase, async (req, res) => {
       const id = req.params.id;
-      console.log('chef id',id);
+      const { email } = req.query;
       const query = {
-        chefId:id
+        chefId: id
       }
       //? Token email
-      // const tokenEmail = req.decoded_email;
-      // if (email !== tokenEmail) {
-      //   return res.status(403).send({
-      //     message: 'forbidden access'
-      //   });
-      // }
-      // const query = {
-      //   buyerEmail: email
-      // }
+      const tokenEmail = req.decoded_email;
+      if (email !== tokenEmail) {
+        return res.status(403).send({
+          message: 'forbidden access'
+        });
+      }
       const result = await ordersColl.find(query).toArray()
       res.send(result)
     })
-    
+    //? patch order coll;
+    app.patch('/orders/statusUpdate/:id', async (req, res) => {
+      const id = req.params.id;
+      const { status } = req.body;
+
+      const updateDoc = {
+        $set: {
+          orderStatus: status
+        }
+      };
+
+      if (status === "accepted") {
+        updateDoc.$set.acceptedAt = new Date();
+      }
+      if (status === "preparing") {
+        updateDoc.$set.preparingAt = new Date();
+      }
+
+      if (status === "delivered") {
+        updateDoc.$set.deliveredAt = new Date();
+      }
+
+      if (status === "canceled") {
+        updateDoc.$set.canceledAt = new Date();
+      }
+
+      const result = await ordersColl.updateOne(
+        { _id: new ObjectId(id) },
+        updateDoc
+      );
+
+      res.send(result);
+    });
     //? post favorties data in db;
     app.post('/favorites', async (req, res) => {
       const favoritesInfo = req.body;
@@ -369,20 +398,20 @@ async function run() {
       res.send(result);
     })
     //? update roleRequest requestStatus;
-    app.patch('/roleRequest/:id',async(req,res)=>{
+    app.patch('/roleRequest/:id', async (req, res) => {
       const id = req.params.id;
       const query = {
-        _id:new ObjectId(id)
+        _id: new ObjectId(id)
       }
       const updateRequestStatus = {
-        $set:{
-          requestStatus:'rejected'
+        $set: {
+          requestStatus: 'rejected'
         }
       }
-      const result = await roleRequestColl.updateOne(query,updateRequestStatus)
+      const result = await roleRequestColl.updateOne(query, updateRequestStatus)
       res.send(result)
     })
-    
+
     //! Stripe code here/checked out session;
     // app.post("/create-checkout-session", async (req, res) => {
     //   const paymentInfo = req.body;
