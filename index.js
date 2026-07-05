@@ -250,6 +250,7 @@ async function run() {
       const result = await ordersColl.find(query).toArray()
       res.send(result)
     })
+    
     //? post favorties data in db;
     app.post('/favorites', async (req, res) => {
       const favoritesInfo = req.body;
