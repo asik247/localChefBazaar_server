@@ -80,6 +80,17 @@ async function run() {
     //? post cards data in db;
     app.post('/cardsData', async (req, res) => {
       const mealsData = req.body;
+      const chefEmail = req.body.userEmail;
+      const query = {
+        email: chefEmail
+      }
+      const chef = await usersColl.findOne(query);
+      if (chef.status === 'fraud') {
+        return res.status(403).send({
+          message: 'Fraud chefs cannot create meals'
+        })
+      }
+
       const result = await myCardsColl.insertOne(mealsData)
       res.send(result)
     })
@@ -153,6 +164,11 @@ async function run() {
       const result = await usersColl.insertOne(usersData);
       res.send(result)
     })
+    //! get All user in admin page manage users;
+    app.get('/users', async (req, res) => {
+      const result = await usersColl.find().toArray();
+      res.send(result)
+    })
     //Todo get specifique user;
     app.get('/users/:userEmail', verifyFirebase, async (req, res) => {
       const email = req.params.userEmail
@@ -204,6 +220,18 @@ async function run() {
       const requestResult = await roleRequestColl.updateOne(query, roleRequestUpdate)
       res.send({ resultUpdate, requestResult })
     })
+    //? farud user aps update status;
+    app.patch('/users/fraud/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const update = {
+        $set: {
+          status: 'fraud'
+        }
+      }
+      const result = await usersColl.updateOne(query, update);
+      res.send(result)
+    })
 
     //? post orders data in db;
     app.post('/orders', async (req, res) => {
@@ -211,6 +239,17 @@ async function run() {
         ...req.body,
         trackingId: generateTrackingId()
       }
+      const userEmail = req.body.buyerEmail;
+      const query = {
+        email: userEmail
+      }
+      const user = await usersColl.findOne(query);
+      if (user.status === 'fraud') {
+        return res.status(403).send({
+          message: 'Fraud chefs cannot create meals'
+        })
+      }
+
       const result = await ordersColl.insertOne(orderInfo);
       res.send(result)
     })
