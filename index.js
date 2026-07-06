@@ -605,7 +605,36 @@ async function run() {
       }
       return res.send({ success: false })
     })
+    //Todo admin all info get Platform Statistics Page showning;
+    app.get('/admin-stats', async (req, res) => {
+      const totalUsers =
+        await usersColl.countDocuments()
 
+      const pendingOrders =
+        await ordersColl.countDocuments({
+          orderStatus: 'pending'
+        })
+
+
+      const deliveredOrders =
+        await ordersColl.countDocuments({
+          orderStatus: 'delivered'
+        })
+
+      const payments = await paymentsColl.find().toArray();
+      const totalPayment = payments.reduce(
+        (sum, payment) => sum + payment.amountTotal,
+        0
+      );
+      // console.log('totaluser',totalUsers,'pendingOrder',pendingOrders,'deliverEdOder',deliveredOrders,'total payment',totalPayment);
+      res.send({
+        totalUsers,
+        pendingOrders,
+        deliveredOrders,
+        totalPayment
+      })
+
+    })
 
 
 
