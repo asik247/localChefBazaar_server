@@ -14,11 +14,8 @@ const generateTrackingId = () => {
   const randomNum = Math.floor(1000 + Math.random() * 9000);
   return `LCB-${Date.now()}-${randomNum}`;
 }
-
-
 //? stripe;
 const stripe = require("stripe")(process.env.STRIPE_SECRET);
-
 const { MongoClient, ServerApiVersion, ObjectId, Admin } = require('mongodb');
 const { Transaction } = require('firebase-admin/firestore');
 const app = express();
@@ -121,6 +118,18 @@ async function run() {
       // console.log('card id',id);
       const query = { _id: new ObjectId(id) };
       const result = await myCardsColl.findOne(query);
+      res.send(result)
+    })
+    //? get partial Search value match in db;
+    app.get('/cardsData/search/partial/:value',async(req,res)=>{
+      const search = req.params.value;
+      const SearchData = {
+        name:{
+          $regex: search,
+          $options: 'i'
+        }
+      }
+      const result = await myCardsColl.find(SearchData).toArray();
       res.send(result)
     })
     //? delete chef card;
@@ -450,39 +459,7 @@ async function run() {
       const result = await roleRequestColl.updateOne(query, updateRequestStatus)
       res.send(result)
     })
-
-    //! Stripe code here/checked out session;
-    // app.post("/create-checkout-session", async (req, res) => {
-    //   const paymentInfo = req.body;
-    //   const amount = parseInt(paymentInfo.price) * 100;
-    //   const session = await stripe.checkout.sessions.create({
-    //     //? line items;
-    //     line_items: [
-    //       {
-    //         price_data: {
-    //           currency: 'usd',
-    //           unit_amount: amount,
-    //           product_data: {
-    //             name: paymentInfo.mealName
-    //           }
-    //         },
-    //         quantity: 1,
-    //       },
-    //     ],
-    //     mode: 'payment',
-    //     metadata: {
-    //       foodName: paymentInfo.mealName,
-    //       foodId: paymentInfo.foodId,
-    //       trackingId: paymentInfo.trackingId
-    //     },
-    //     customer_email: paymentInfo.buyerEmail,
-    //     success_url: `${process.env.STRIP_DOMAIN}/dashboardLayouts/payment-success?session_id={CHECKOUT_SESSION_ID}`,
-    //     cancel_url: `${process.env.STRIP_DOMAIN}/dashboardLayouts/payment-cancelled?session_id={CHECKOUT_SESSION_ID}`,
-    //   });
-
-    //   res.send({ url: session.url })
-    // });
-    //? stripe code/checked out session 2;
+    //? stripe code/checked out session;
     app.post('/create-checkout-session', async (req, res) => {
       const ordersInfo = req.body;
       const amount = ordersInfo.price * 100;
@@ -515,51 +492,7 @@ async function run() {
       res.send({ url: session.url })
 
     })
-    //Todo stripe code retrive;
-    // app.patch('/paymentSuccess', async (req, res) => {
-    //   const sessionId = req.query.session_id;
-    //   const session = await stripe.checkout.sessions.retrieve(sessionId)
-    //   //? dublicate checked;
-    //   const transactionId = session.payment_intent;
-    //   const query = {transactionId:transactionId};
-    //   const transactionIdExist = await paymentsColl.findOne(query);
-    //   if(transactionIdExist){
-    //     return res.send({message:'already exist',transactionId,trackingId:transactionIdExist.trackingId})
-    //   }
-    //   //? update code;
-    //   if (session.payment_status === 'paid') {
-    //     const trackingId = session.metadata.trackingId;
-    //     const updatePaymentStatus = {
-    //       $set: {
-    //         paymentStatus: 'paid',
-    //       }
-    //     }
-    //     const result = await ordersColl.updateOne({ trackingId }, updatePaymentStatus)
-    //     //?payments history;
-    //     const paymentsHistory = {
-    //       foodName: session.metadata.foodName,
-    //       foodId: session.metadata.foodId,
-    //       trackingId: session.metadata.trackingId,
-    //       amountTotal: session.amount_total / 100,
-    //       paymentStatus: session.payment_status,
-    //       transactionId: session.payment_intent,
-    //       customerEmail: session.customer_email,
-    //       createdAt:new Date()
-    //     }
-    //     const resultPayment = await paymentsColl.insertOne(paymentsHistory)
-    //     return res.send({
-    //       success: true,
-    //       modifyOrder: result,
-    //       trackingId: trackingId,
-    //       transactionId:session.payment_intent,
-    //       paymentsInfo: resultPayment
-    //     })
-
-    //   }
-    //   // console.log('all info session', session.payment_intent);
-    //   return res.send({ success: false })
-    // })
-    //? stripe code retrive 2;
+    //? stripe code retrive;
     app.patch('/paymentSuccess', async (req, res) => {
       const sessionId = req.query.session_id;
       const session = await stripe.checkout.sessions.retrieve(sessionId);
@@ -635,7 +568,6 @@ async function run() {
       })
 
     })
-
 
 
 
