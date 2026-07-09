@@ -5,7 +5,13 @@ require('dotenv').config()
 //! Firebase Admin
 const { initializeApp, cert } = require('firebase-admin/app');
 const { getAuth } = require('firebase-admin/auth');
-const serviceAccount = require('./localchefbazaar.json');
+
+// const serviceAccount = require('./localchefbazaar.json');
+// ! vercel deploy third step;
+// const serviceAccount = require("./firebase-admin-key.json");
+const decoded = Buffer.from(process.env.FB_SERVICE_KEY, 'base64').toString('utf8')
+const serviceAccount = JSON.parse(decoded);
+// console.log(serviceAccount);
 initializeApp({
   credential: cert(serviceAccount),
 });
@@ -121,10 +127,10 @@ async function run() {
       res.send(result)
     })
     //? get partial Search value match in db;
-    app.get('/cardsData/search/partial/:value',async(req,res)=>{
+    app.get('/cardsData/search/partial/:value', async (req, res) => {
       const search = req.params.value;
       const SearchData = {
-        name:{
+        name: {
           $regex: search,
           $options: 'i'
         }
@@ -571,9 +577,9 @@ async function run() {
 
 
 
-
-    await client.db("admin").command({ ping: 1 });
-    console.log("Pinged your deployment. You successfully connected to MongoDB!");
+    //! vercel deploy first step;
+    // await client.db("admin").command({ ping: 1 });
+    // console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
   }
 }
