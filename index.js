@@ -6,7 +6,12 @@ require('dotenv').config()
 const { initializeApp, cert } = require('firebase-admin/app');
 const { getAuth } = require('firebase-admin/auth');
 
- const serviceAccount = require('./localchefbazaar.json');
+// In production, set FIREBASE_SERVICE_ACCOUNT to the complete Firebase service
+// account JSON. The local file remains an optional development fallback and is
+// intentionally not committed to source control.
+const serviceAccount = process.env.FIREBASE_SERVICE_ACCOUNT
+  ? JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT)
+  : require('./localchefbazaar.json');
 
 initializeApp({
   credential: cert(serviceAccount),
@@ -580,5 +585,4 @@ async function run() {
   }
 }
 run().catch(console.dir);
-
 
