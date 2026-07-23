@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-// ! dotenv;
+//// ! dotenv;
 require('dotenv').config()
 //! Firebase Admin
 const { initializeApp, cert } = require('firebase-admin/app');
@@ -93,7 +93,7 @@ async function run() {
       const result = await myCardsColl.insertOne(mealsData)
       res.send(result)
     })
-    //? get cards data for limit first 6 data;
+    //? get cards data for limit first 6 datas;
     app.get('/cardsData', async (req, res) => {
       const cursor = myCardsColl.find().sort({ price: -1 }).limit(6)
       const result = await cursor.toArray();
